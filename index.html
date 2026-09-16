@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- No pinch-zoom/user-scalable concerns on a TV, but a fixed viewport
+         still matters — webOS's browser shell otherwise applies its own
+         default scaling heuristics meant for a resizable window, not a
+         fixed 1920x1080/3840x2160 TV panel. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>TREND TV</title>
+    <!-- "Inter" — closest freely-embeddable match to the reference
+         mockups' rounded-geometric sans (sampled visually: tight
+         letterspacing, near-circular bowls on "o"/"e", a two-story "a"
+         with a straight-cut terminal). No font metadata ships with the
+         approved mockup PNGs themselves, so this is an approximation,
+         not an extracted asset — see `index.css`'s own comment. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/trend-tv-web-demo/assets/index-DJYPeHrG.js"></script>
+    <link rel="stylesheet" crossorigin href="/trend-tv-web-demo/assets/index-DarJ_Dpp.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

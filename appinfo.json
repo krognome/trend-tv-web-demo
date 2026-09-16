@@ -1,0 +1,12 @@
+{
+  "id": "com.trend.tv.web",
+  "version": "0.0.1",
+  "vendor": "TREND",
+  "type": "web",
+  "main": "index.html",
+  "title": "TREND TV",
+  "icon": "icon.png",
+  "largeIcon": "icon_large.png",
+  "resolution": "1920x1080",
+  "uiRevision": "2"
+}
