@@ -22,6 +22,25 @@ toolbar → set the viewport to 1920×1080, then navigate using **only the
 keyboard arrow keys and Enter** (not the mouse) — that's what exercises
 the actual TV Focus Engine.
 
+## Login gate (new)
+
+Every route is now behind a real login screen — nothing else in the app
+renders until `auth.trend.app` returns a session, no more silent access
+on top of fixture/demo data regardless of auth state.
+
+**Known limitation on *this* static demo specifically:** the login
+*screen* itself renders correctly here, but submitting it will fail
+with a network error. `auth.trend.app` sends no
+`Access-Control-Allow-Origin` header at all (confirmed directly), so a
+browser blocks reading its response from any origin that isn't the
+API's own server — this static GitHub Pages site has no server of its
+own to route around that, unlike `yarn dev` (which proxies around it
+locally — see `apps/tv-web/vite.config.ts`'s `server.proxy` comment in
+the source repo). Real login only works today via `yarn dev` in the
+source repo. Fixing this here needs either CORS headers added to
+`auth.trend.app` for this demo's origin, or a small standalone proxy —
+neither exists yet.
+
 ## How to refresh this snapshot
 
 From the `wpconcierges/trend-tv` repo, with this repo's name substituted
