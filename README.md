@@ -24,22 +24,31 @@ the actual TV Focus Engine.
 
 ## Login gate (new)
 
-Every route is now behind a real login screen — nothing else in the app
-renders until `auth.trend.app` returns a session, no more silent access
-on top of fixture/demo data regardless of auth state.
+Every route is now behind a login screen — nothing else in the app
+renders until a session exists, no more silent access on top of
+fixture/demo data regardless of auth state.
 
-**Known limitation on *this* static demo specifically:** the login
-*screen* itself renders correctly here, but submitting it will fail
-with a network error. `auth.trend.app` sends no
-`Access-Control-Allow-Origin` header at all (confirmed directly), so a
-browser blocks reading its response from any origin that isn't the
-API's own server — this static GitHub Pages site has no server of its
-own to route around that, unlike `yarn dev` (which proxies around it
-locally — see `apps/tv-web/vite.config.ts`'s `server.proxy` comment in
-the source repo). Real login only works today via `yarn dev` in the
-source repo. Fixing this here needs either CORS headers added to
-`auth.trend.app` for this demo's origin, or a small standalone proxy —
-neither exists yet.
+**This build runs in simulated-login mode (`VITE_TREND_AUTH_DEMO_MODE=true`),
+clearly marked with a "DEMO MODE" badge in the corner of the login
+screen.** Any non-empty email/password "succeeds" locally with
+obviously-fake values — nothing here is a real `auth.trend.app` call.
+That's deliberate, not a shortcut taken quietly: `auth.trend.app` sends
+no `Access-Control-Allow-Origin` header at all (confirmed directly), so
+a browser blocks reading its response from any origin that isn't the
+API's own server, and this static GitHub Pages site has no server of
+its own to route around that. Real login against the live backend is
+verified and working — just not reachable from *this* static build.
+See the "Real login" section below for where that actually runs.
+
+### Real login
+
+`yarn dev` in the source repo (`wpconcierges/trend-tv`, `apps/tv-web`)
+talks to the real `auth.trend.app`, proxied around the CORS gap above
+by Vite's own dev server (see `vite.config.ts`'s `server.proxy`
+comment) — that's where to see an actual account log in, not this
+static snapshot. Fixing this here for good needs either CORS headers
+added to `auth.trend.app` for this demo's origin, or a small standalone
+proxy — neither exists yet.
 
 ## How to refresh this snapshot
 
@@ -48,8 +57,13 @@ for `<repo-name>` if you renamed it from `trend-tv-web-demo`:
 
 ```bash
 cd apps/tv-web
-yarn vite build --base=/<repo-name>/ --outDir /path/to/this/repo --emptyOutDir
+VITE_TREND_AUTH_DEMO_MODE=true yarn vite build --base=/<repo-name>/ --outDir /path/to/this/repo --emptyOutDir
 ```
+
+`VITE_TREND_AUTH_DEMO_MODE=true` is what's behind the simulated-login
+behavior above — omitting it would point this static build at the real
+`auth.trend.app` again, which (per the CORS gap above) would make every
+login attempt here fail with a network error instead.
 
 Then commit and push the changed files in this repo. GitHub Pages
 redeploys automatically on every push to `main`.
