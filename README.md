@@ -50,6 +50,33 @@ static snapshot. Fixing this here for good needs either CORS headers
 added to `auth.trend.app` for this demo's origin, or a small standalone
 proxy — neither exists yet.
 
+## For You feed — real, not fixture data (new)
+
+Even though login above is simulated, the **For You** tab on this demo
+pulls real data from `https://api-dev.trend.app/v1/entity/feed/` — a
+different host than `auth.trend.app`, and (confirmed live, by direct
+`curl`) one that *does* send a proper `Access-Control-Allow-Origin: *`
+header. The CORS gap only ever blocked login, never this endpoint.
+
+This build has one real, pre-minted session (`access_token`,
+`tavuid`, `tavsid`, `trend_api_token` for one specific test account)
+baked in via `VITE_TREND_DEMO_*` build-time env vars (see
+`env.ts`/`trendAuthClient.ts` in the source repo for exactly how).
+Submitting any email/password on the login screen above returns that
+real session instead of a fully-fake one, which is enough for
+`HybridDataSource` to route the For You feed to the real API.
+
+**Known limits, on purpose, not hidden:**
+- That baked-in `trend_api_token` has a real expiry (~12 hours,
+  decoded from its own JWT on 2026-10-14) — after that, For You will
+  stop returning real data until someone re-mints a token and rebuilds
+  this snapshot per the refresh instructions below.
+- The token is a real, usable bearer credential for one specific test
+  account, shipped in this public repo's JS bundle — extractable by
+  anyone who opens it. Acceptable only because it's a disposable test
+  account, not a real user's login. Don't reuse this pattern for a real
+  account's credentials.
+
 ## How to refresh this snapshot
 
 From the `wpconcierges/trend-tv` repo, with this repo's name substituted
@@ -57,13 +84,26 @@ for `<repo-name>` if you renamed it from `trend-tv-web-demo`:
 
 ```bash
 cd apps/tv-web
-VITE_TREND_AUTH_DEMO_MODE=true yarn vite build --base=/<repo-name>/ --outDir /path/to/this/repo --emptyOutDir
+VITE_TREND_AUTH_DEMO_MODE=true \
+VITE_TREND_API_URL=https://api-dev.trend.app/v1 \
+VITE_TREND_DEMO_ACCESS_TOKEN=<fresh access_token> \
+VITE_TREND_DEMO_TAVUID=<fresh tavuid> \
+VITE_TREND_DEMO_TAVSID=<fresh tavsid> \
+VITE_TREND_DEMO_TREND_API_TOKEN=<fresh trend_api_token> \
+yarn vite build --base=/<repo-name>/ --outDir /path/to/this/repo --emptyOutDir
 ```
 
 `VITE_TREND_AUTH_DEMO_MODE=true` is what's behind the simulated-login
 behavior above — omitting it would point this static build at the real
 `auth.trend.app` again, which (per the CORS gap above) would make every
 login attempt here fail with a network error instead.
+
+The four `VITE_TREND_DEMO_*` vars are optional — omit all four to go
+back to the fully-fake session (For You falls back to fixture data,
+same as before this feature existed). Include all four, freshly minted
+(see the source repo's `realForYouFeedAdapter.ts`/`trendAuthClient.ts`
+for the real `token/app` → `token/create` → `users/login` sequence), to
+get a real For You feed again for another ~12 hours.
 
 Then commit and push the changed files in this repo. GitHub Pages
 redeploys automatically on every push to `main`.
